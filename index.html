@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#080909">
+  <title>Elvis Zhou · HR · AI Explorer</title>
+  <meta name="description" content="Elvis Zhou 的个人作品集。围绕人才、业务研究与 AI 应用，呈现产品实践、工作方法与知识积累。">
+  <meta property="og:title" content="Elvis Zhou · HR · AI Explorer">
+  <meta property="og:description" content="从人才与业务问题出发，探索 AI 的实际应用。">
+  <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="./assets/fonts/antonio.ttf" as="font" type="font/ttf" crossorigin>
+  <link rel="stylesheet" href="./src/styles.css">
+  <link rel="stylesheet" href="./src/premium.css">
+  <link rel="stylesheet" href="./src/effects.css">
+  <script type="module" src="./src/app.js"></script>
+  <script type="module" src="./src/premium-interactions.js"></script>
+</head>
+<body>
+  <div class="page-ambient-bg"></div>
+  <a class="skip" href="#main">跳至正文</a>
+  <header class="site-header" id="header"></header>
+  <main id="main" tabindex="-1"></main>
+  <footer id="footer"></footer>
+  <dialog id="email-dialog" class="contact-dialog" aria-labelledby="email-title">
+    <form method="dialog"><button class="dialog-close" aria-label="关闭邮箱对话框">Close <span aria-hidden="true">×</span></button></form>
+    <p class="eyebrow">GET IN TOUCH</p><h2 id="email-title">Email</h2>
+    <a id="email-address" class="dialog-email"></a>
+    <p class="muted">Select the address to send an email.</p>
+  </dialog>
+  <dialog id="wechat-dialog" aria-labelledby="wechat-title">
+    <form method="dialog"><button class="dialog-close" aria-label="关闭微信对话框">Close <span aria-hidden="true">×</span></button></form>
+    <p class="eyebrow">GET IN TOUCH</p><h2 id="wechat-title">WeChat</h2>
+    <img src="./assets/wechat-qr.png" width="320" height="320" alt="Elvis Zhou的微信二维码">
+    <p class="wechat-id" id="wechat-id"></p>
+    <p class="muted">Scan the QR code or search for this WeChat ID.</p>
+  </dialog>
+  <noscript><p class="noscript">请启用 JavaScript 浏览作品。联系邮箱：391790173@qq.com</p></noscript>
+</body>
+</html>

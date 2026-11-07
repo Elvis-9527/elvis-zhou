@@ -1,0 +1,549 @@
+/* 个人站 V3 - 高级感视觉增强 */
+/* 设计理念: 克制的奢华 · 微妙动态 · 精密工艺 */
+
+/* ===== 色彩系统升级 ===== */
+:root {
+  /* 背景层次 */
+  --bg-base: #080909;
+  --bg-elevated: #0a0b0b;
+  --bg-overlay: rgba(10,11,11,0.95);
+
+  /* 文本层次 */
+  --text-primary: #f5efe2;
+  --text-secondary: #d8d4c9;
+  --text-tertiary: #a6a69e;
+  --text-ghost: rgba(245,239,226,0.35);
+
+  /* 边框层次 */
+  --border-subtle: rgba(245,239,226,0.08);
+  --border-default: rgba(245,239,226,0.12);
+  --border-emphasis: rgba(245,239,226,0.25);
+
+  /* 强调色 */
+  --accent-green: #a8d5ba;
+  --accent-amber: #d4b896;
+  --accent-blue: #9db8d4;
+
+  /* 渐变预设 */
+  --gradient-subtle: linear-gradient(135deg, rgba(245,239,226,0.04) 0%, rgba(245,239,226,0.02) 50%, rgba(245,239,226,0.03) 100%);
+  --gradient-highlight: linear-gradient(135deg, rgba(245,239,226,0.08) 0%, rgba(245,239,226,0.04) 100%);
+  --gradient-border: linear-gradient(135deg, rgba(245,239,226,0.2) 0%, rgba(245,239,226,0.08) 50%, rgba(245,239,226,0.2) 100%);
+
+  /* 动效曲线 */
+  --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-elegant: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* ===== 动态流光背景 ===== */
+.page-ambient-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(245,239,226,0.03) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(245,239,226,0.02) 0%, transparent 50%),
+    linear-gradient(rgba(245,239,226,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(245,239,226,0.025) 1px, transparent 1px),
+    var(--bg-base);
+  background-size:
+    100% 100%,
+    100% 100%,
+    80px 80px,
+    80px 80px,
+    100% 100%;
+  background-position: 0 0, 0 0, 0 0, 0 0, 0 0;
+}
+
+.page-ambient-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(245,239,226,0.06) 0%,
+    transparent 50%
+  );
+  opacity: 0;
+  transition: opacity 0.8s ease;
+  pointer-events: none;
+}
+
+body:not(.is-home) .page-ambient-bg::before {
+  opacity: 0.5;
+}
+
+/* ===== 页面容器优化 ===== */
+.page {
+  max-width: 1480px;
+  padding: 0 clamp(32px, 6vw, 96px);
+}
+
+/* ===== 标题系统精炼 ===== */
+.display-heading {
+  font-weight: 300;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+}
+
+.section-heading h2 {
+  font-size: 20px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+}
+
+/* ===== 渐变分隔线 ===== */
+.section-divider,
+.case-section,
+.focus-section,
+.experience-section,
+.resume-section,
+.index-list,
+.next-project,
+#footer {
+  border-top: 1px solid transparent;
+  border-image: linear-gradient(
+    90deg,
+    rgba(245,239,226,0) 0%,
+    rgba(245,239,226,0.15) 20%,
+    rgba(245,239,226,0.15) 80%,
+    rgba(245,239,226,0) 100%
+  ) 1;
+}
+
+/* ===== 玻璃态卡片基础 ===== */
+.elevated-card {
+  background: rgba(245,239,226,0.02);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition:
+    transform 0.5s var(--ease-smooth),
+    background 0.4s ease,
+    border-color 0.4s ease,
+    box-shadow 0.5s ease;
+}
+
+.elevated-card:hover {
+  background: rgba(245,239,226,0.04);
+  border-color: var(--border-emphasis);
+  transform: translateY(-6px);
+  box-shadow:
+    0 20px 40px rgba(0,0,0,0.3),
+    0 0 0 1px rgba(245,239,226,0.05) inset;
+}
+
+/* ===== 工具卡片重新设计 ===== */
+.resource-card {
+  background: rgba(245,239,226,0.03);
+  border: 1px solid var(--border-default);
+  border-radius: 12px;
+  padding: 28px 32px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition:
+    transform 0.5s var(--ease-smooth),
+    background 0.4s ease,
+    border-color 0.4s ease,
+    box-shadow 0.5s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.resource-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--gradient-subtle);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+.resource-card:hover {
+  background: rgba(245,239,226,0.06);
+  border-color: var(--border-emphasis);
+  transform: translateY(-6px);
+  box-shadow:
+    0 24px 48px rgba(0,0,0,0.35),
+    0 0 0 1px rgba(245,239,226,0.08) inset;
+}
+
+.resource-card:hover::before {
+  opacity: 1;
+}
+
+/* 工具卡片图标 */
+.tool-icon {
+  width: 48px;
+  height: 48px;
+  background: var(--gradient-subtle);
+  border: 1px solid var(--border-default);
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 20px;
+  transition: all 0.4s var(--ease-smooth);
+}
+
+.resource-card:hover .tool-icon {
+  background: var(--gradient-highlight);
+  border-color: var(--border-emphasis);
+  transform: translateY(-2px);
+}
+
+/* 工具卡片标题 */
+.resource-card h2 {
+  font-size: 20px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  letter-spacing: 0.02em;
+}
+
+/* 工具卡片描述 */
+.resource-card p {
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--text-tertiary);
+  margin-bottom: 20px;
+}
+
+/* 工具卡片箭头 */
+.resource-card-arrow {
+  width: 20px;
+  height: 20px;
+  stroke: var(--text-tertiary);
+  transition: all 0.4s var(--ease-smooth);
+  position: absolute;
+  right: 28px;
+  bottom: 28px;
+}
+
+.resource-card:hover .resource-card-arrow {
+  stroke: var(--text-primary);
+  transform: translate(4px, -4px) rotate(-45deg);
+}
+
+/* 状态标签 */
+.status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  font-weight: 500;
+  text-transform: uppercase;
+  position: absolute;
+  top: 24px;
+  right: 28px;
+}
+
+.status-available {
+  color: var(--accent-green);
+  background: rgba(168,213,186,0.08);
+  border: 1px solid rgba(168,213,186,0.2);
+}
+
+.status-dev {
+  color: var(--accent-amber);
+  background: rgba(212,184,150,0.08);
+  border: 1px solid rgba(212,184,150,0.2);
+}
+
+.status-internal {
+  color: var(--text-tertiary);
+  background: rgba(166,166,158,0.08);
+  border: 1px solid var(--border-default);
+}
+
+/* 工具网格布局 */
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 24px;
+  padding: 48px 0;
+}
+
+@media(min-width: 1400px) {
+  .tools-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ===== 花谷四角文字美化 ===== */
+/* 左上角 Wordmark */
+.site-header {
+  height: 100px;
+  letter-spacing: 0.15em;
+}
+
+.wordmark {
+  font-size: 19px;
+  letter-spacing: 0.12em;
+  font-weight: 500;
+}
+
+.wordmark-dot {
+  width: 4px;
+  height: 4px;
+  margin-top: 12px;
+}
+
+.site-header nav {
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  gap: 38px;
+}
+
+.site-header nav a {
+  opacity: 0.75;
+  transition: opacity 0.3s ease, color 0.3s ease;
+}
+
+.site-header nav a:hover,
+.site-header nav a[aria-current] {
+  opacity: 1;
+}
+
+/* 右下角场景控制 - 垂直布局 */
+.home-bottom {
+  align-items: flex-end;
+}
+
+.scene-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.scene-controls button {
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  opacity: 0.75;
+  transition: opacity 0.3s ease;
+}
+
+.scene-controls button:hover {
+  opacity: 1;
+}
+
+.scene-controls .sound svg {
+  width: 20px;
+  height: 20px;
+  stroke-width: 1.2;
+}
+
+.control-divider {
+  width: 60px;
+  height: 1px;
+  margin: 4px 0;
+  background: linear-gradient(
+    90deg,
+    rgba(245,239,226,0) 0%,
+    rgba(245,239,226,0.25) 50%,
+    rgba(245,239,226,0) 100%
+  );
+}
+
+.home-signature {
+  font-size: 8px;
+  letter-spacing: 0.15em;
+  opacity: 0.5;
+  margin-top: 8px;
+}
+
+/* 左下角实践领域 - 精致标签 */
+.practice-tags {
+  position: absolute;
+  left: var(--gutter);
+  bottom: 34px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: rgba(245,239,226,0.04);
+  border: 1px solid var(--border-default);
+  border-radius: 6px;
+  padding: 16px 20px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.practice-tags span {
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  line-height: 2;
+  opacity: 0.85;
+  text-transform: uppercase;
+}
+
+/* ===== 微动效优化 ===== */
+.feature {
+  transition: transform 0.5s var(--ease-smooth);
+}
+
+.feature:hover {
+  transform: translateY(-4px);
+}
+
+.index-row {
+  transition:
+    padding 0.3s var(--ease-smooth),
+    color 0.3s ease,
+    background 0.4s ease;
+}
+
+.index-row:hover {
+  background: rgba(245,239,226,0.025);
+  padding-left: 16px;
+}
+
+.text-link {
+  transition:
+    border-color 0.3s ease,
+    color 0.3s ease;
+}
+
+.text-link:hover {
+  border-color: var(--text-primary);
+}
+
+/* 链接下划线精炼动画 */
+.refined-link {
+  position: relative;
+  display: inline-block;
+}
+
+.refined-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.4s var(--ease-smooth);
+}
+
+.refined-link:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* 按钮微光扫过 */
+.button-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.button-shimmer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255,255,255,0.08) 50%,
+    transparent 100%
+  );
+  transition: left 0.6s ease;
+}
+
+.button-shimmer:hover::before {
+  left: 100%;
+}
+
+/* 对话框优雅进入 */
+dialog {
+  animation: dialog-elegant-in 0.4s var(--ease-smooth);
+  border: 1px solid var(--border-emphasis);
+  background: var(--bg-overlay);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+@keyframes dialog-elegant-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+dialog::backdrop {
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* 联系方式卡片精致交互 */
+.contact-methods > a,
+.contact-methods > button {
+  transition:
+    padding 0.3s var(--ease-smooth),
+    background 0.4s ease,
+    border-color 0.3s ease;
+}
+
+.contact-methods > a:hover,
+.contact-methods > button:hover {
+  padding-left: 12px;
+  background: rgba(245,239,226,0.03);
+  border-top-color: var(--border-emphasis);
+}
+
+/* ===== 响应式优化 ===== */
+@media(max-width: 760px) {
+  .page {
+    padding: 0 clamp(22px, 5vw, 48px);
+  }
+
+  .tools-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 32px 0;
+  }
+
+  .resource-card {
+    padding: 24px 28px;
+  }
+
+  .scene-controls {
+    gap: 10px;
+  }
+
+  .practice-tags {
+    padding: 12px 16px;
+    gap: 6px;
+  }
+
+  .practice-tags span {
+    font-size: 8px;
+  }
+}
+
+/* ===== 减弱动态偏好 ===== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .page-ambient-bg::before {
+    display: none;
+  }
+}
