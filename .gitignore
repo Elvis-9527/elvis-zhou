@@ -1,0 +1,15 @@
+# agent 工具缓存与运行日志（Codex/Superpowers 本地状态，不入库）
+.superpowers/
+*.log
+*.err
+
+# 依赖与构建产物
+node_modules/
+dist/
+
+# 系统与编辑器文件
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
