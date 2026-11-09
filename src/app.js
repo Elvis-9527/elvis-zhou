@@ -1,7 +1,6 @@
 import {profile, projects, experience} from './content.js';
-import {renderWriting, renderToolkit, renderArticle} from './library-pages.js';
+import {renderWriting, renderToolkit, renderArticle, topicIndex, loadArticleContent} from './library-pages.js';
 import {initEffects} from './effects.js';
-
 const main = document.querySelector('#main');
 const header = document.querySelector('#header');
 const footer = document.querySelector('#footer');
@@ -23,10 +22,19 @@ const scrollPositions = new Map();
 history.scrollRestoration = 'manual';
 const asset = file => `./assets/projects/${file}`;
 const linkButton = (label, href, extra = '') => `<a class="text-link" href="${href}" ${extra}><span>${label}</span>${diagonal}</a>`;
-
+const workTopics = [
+  {name: '产品', description: '把日常任务做成可使用的工具'},
+  {name: '研究', description: '整理信息，核验来源，形成判断'},
+  {name: '实践', description: '把 AI 与方法带回真实工作'},
+];
+const aboutTopics = [
+  {name: '人才与组织', description: '关注业务需求、人才市场与员工融入'},
+  {name: '研究与判断', description: '整理信息、核验来源，为判断提供参考'},
+  {name: 'AI 实践', description: '探索工具、流程与知识管理的实际应用'},
+];
 function renderHeader(route) {
   header.classList.remove('menu-open');
-  header.innerHTML = `<a class="wordmark" href="#/" aria-label="${profile.name}，返回首页">${profile.name}<span class="wordmark-dot" aria-hidden="true"></span></a>
+  header.innerHTML = `<a class="wordmark" href="#/" aria-label="${profile.name}，返回首页">${profile.name}.</a>
     <button class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="primary-nav" aria-label="展开导航"><span>Menu</span><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 8h16M4 16h16"/></svg></button>
     <nav id="primary-nav" aria-label="主导航">${[['work','作品'],['writing','文章'],['toolkit','工具'],['about','关于'],['contact','联系']].map(([id,label]) => `<a href="#/${id}" ${route === id || (id === 'work' && route === 'project') || (id === 'writing' && route === 'article') || (id === 'about' && route === 'resume') ? 'aria-current="page"' : ''}>${label}</a>`).join('')}</nav>`;
   header.querySelector('.nav-toggle').onclick = () => {
@@ -39,7 +47,6 @@ function renderHeader(route) {
     if (anchor) closeMobileMenu(anchor.hash === location.hash);
   });
 }
-
 function closeMobileMenu(restoreFocus = false) {
   header.classList.remove('menu-open');
   const toggle = header.querySelector('.nav-toggle');
@@ -47,17 +54,13 @@ function closeMobileMenu(restoreFocus = false) {
   toggle?.setAttribute('aria-label', '展开导航');
   if (restoreFocus) toggle?.focus();
 }
-
 function renderFooter() {
-  footer.innerHTML = `<div class="footer-main"><a class="wordmark" href="#/">${profile.name}</a><span>${profile.role}</span><a href="#/contact">保持联系 ${diagonal}</a></div>
-  <div class="footer-meta"><span>© ${new Date().getFullYear()} ${profile.name}</span><span>花谷视觉与引擎：<a href="https://www.gladeye.com/" target="_blank" rel="noopener noreferrer">Gladeye</a></span><a href="#/">返回花谷 ↑</a></div>`;
+  footer.innerHTML = `<div class="footer-grid"><div class="footer-block footer-identity"><a class="wordmark" href="#/">${profile.name}.</a><span>${profile.role}</span></div><a class="footer-action" href="#/contact"><span>联系我</span>${diagonal}</a><a class="footer-action" href="#/"><span>返回花谷</span>${diagonal}</a></div>`;
 }
-
 function scenePost(action) {
   const frame = document.querySelector('#valley-frame');
   if (frame?.contentWindow) frame.contentWindow.postMessage({type:'portfolio-scene', action}, location.origin);
 }
-
 function updateSceneControls() {
   const motion = document.querySelector('#motion');
   const sound = document.querySelector('#sound');
@@ -69,7 +72,6 @@ function updateSceneControls() {
     sound.title = soundOn ? '关闭环境音效' : '开启环境音效';
   }
 }
-
 function mountScene() {
   clearTimeout(sceneTimer);
   const layer = document.querySelector('#scene-layer');
@@ -93,16 +95,15 @@ function mountScene() {
   }
   updateSceneControls();
 }
-
 function renderHome() {
   main.innerHTML = `<section class="home" aria-labelledby="home-title">
-    <div class="scene-layer" id="scene-layer"><img class="scene-poster" src="./assets/valley-poster.png" alt="" fetchpriority="high"></div>
+    <div class="scene-layer" id="scene-layer"><img class="scene-poster" src="./assets/valley-poster.webp" alt="" fetchpriority="high"></div>
     <div class="home-content">
       <h1 id="home-title">Ideas, in bloom.</h1>
-      <div class="home-caption"><p><span class="identity-name">${profile.name}</span><span class="caption-divider" aria-hidden="true"> / </span><span class="identity-role">${profile.role}</span></p><p>${profile.introduction}</p></div>
+      <div class="home-caption"><p><span class="identity-name">${profile.name}.</span><span class="caption-divider" aria-hidden="true"> / </span><span class="identity-role">${profile.role}</span></p><p>${profile.introduction}</p></div>
       <a href="#/work" class="home-cta" id="enter-work"><span class="circle-arrow">${arrow}</span><span>查看作品</span></a>
     </div>
-    <div class="home-bottom"><span class="home-signature">人才 · 研究 · AI 实践</span><div class="scene-controls"><span class="wander-label">滚动，漫游花谷</span><button id="motion" aria-pressed="true">暂停动态</button><span class="control-divider" aria-hidden="true"></span><button class="sound" id="sound" aria-pressed="false" aria-label="开启环境音效">${speaker}</button></div></div>
+    <div class="home-bottom"><div class="scene-controls"><span class="wander-label">滚动，漫游花谷</span><button id="motion" aria-pressed="true">暂停动态</button><span class="control-divider" aria-hidden="true"></span><button class="sound" id="sound" aria-pressed="false" aria-label="开启环境音效">${speaker}</button></div></div>
   </section>`;
   mountScene();
   document.querySelector('#motion').onclick = () => { motionEnabled = !motionEnabled; mountScene(); };
@@ -113,32 +114,26 @@ function renderHome() {
   cta.addEventListener('focus', () => scenePost('hover-in'));
   cta.addEventListener('blur', () => scenePost('hover-out'));
 }
-
 function researchVisual() {
   return `<div class="research-visual" aria-label="研究流程：定义问题、收集信息、形成判断"><span class="visual-label">RESEARCH / FRAMEWORK</span><div class="research-heading">让信息<br><span>形成判断。</span></div><div class="research-flow"><span>定义问题</span><i></i><span>收集信息</span><i></i><span>形成判断</span></div><span class="visual-bottom">海外竞品调研体系</span></div>`;
 }
-
 function projectVisual(project, detail = false) {
   if (project.id === 'research') return researchVisual();
   if (project.id === 'ledger') return `<div class="product-stage ledger-stage"><span class="stage-label">XIAOZHOU LEDGER</span><div class="phone-composition">${[['today','今日收支'],['transactions','流水查询'],['entry','记一笔']].map(([file,label]) => `<div class="phone-frame"><img src="${asset(`ledger-${file}.webp`)}" alt="小周记账 · ${label}" width="322" height="698" loading="${detail ? 'eager' : 'lazy'}"></div>`).join('')}</div><span class="stage-footnote">记录 / 查询 / 分析</span></div>`;
   if (project.id === 'enablement') return `<div class="publication-visual"><span>AI 赋能系列</span><strong>AI IN<br>PRACTICE<span>.</span></strong><div>理解工具 <i></i> 建立方法 <i></i> 回到实践</div></div>`;
   return `<div class="product-stage screen-stage stage-${project.id}"><span class="stage-label">${project.english}</span><div class="screen-frame"><div class="window-bar" aria-hidden="true"><i></i><i></i><i></i></div><img src="${asset(project.image)}" alt="${project.imageAlt}" loading="${detail ? 'eager' : 'lazy'}" width="1400" height="788"></div><span class="stage-footnote">${project.form}</span></div>`;
 }
-
 function feature(project, index) {
   return `<a class="feature feature-${project.id}" href="#/project/${project.id}" aria-label="查看${project.name}项目详情"><div class="feature-media">${projectVisual(project)}<span class="feature-arrow">${diagonal}</span></div><div class="feature-caption"><span class="project-number">${String(index).padStart(2,'0')}</span><div><h2>${project.name}</h2><p>${project.subtitle}</p></div><span class="project-category">${project.category}</span></div></a>`;
 }
-
 function renderWork() {
-  main.innerHTML = `<div class="page work-page"><section class="page-intro"><h1 class="display-heading">Selected work<span class="heading-period">.</span></h1><div class="intro-aside"><p class="intro-chinese">产品、研究与实践。</p><p>从具体问题出发，<br>记录工具、方法与知识的积累。</p></div></section>
+  main.innerHTML = `<div class="page work-page"><section class="page-intro"><h1 class="display-heading">Work<span class="heading-period">.</span></h1><div class="intro-aside"><p class="intro-chinese">作品</p><p>产品、研究与 AI 实践</p></div></section>${topicIndex(workTopics)}
     <section class="featured staggered-gallery" aria-label="全部六个项目">${projects.map((p,i) => feature(p,i+1)).join('')}</section>
     <section class="closing"><p>关于实践，也关于新的可能。</p><a href="#/contact">保持联系${diagonal}</a></section></div>`;
 }
-
 function sectionMarkup(section, index) {
   return `<section class="case-section"><div class="case-section-label"><span>${String(index + 1).padStart(2,'0')}</span><h2>${section.title}</h2></div><div class="case-section-content">${section.text ? `<p>${section.text}</p>` : ''}${section.items ? `<dl>${section.items.map(([term,desc]) => `<div><dt>${term}</dt><dd>${desc}</dd></div>`).join('')}</dl>` : ''}${section.steps ? `<ol class="process-list">${section.steps.map(([title,text],i) => `<li><span>${String(i+1).padStart(2,'0')}</span><div><h3>${title}</h3><p>${text}</p></div></li>`).join('')}</ol>` : ''}</div></section>`;
 }
-
 function renderProject(id) {
   const project = projects.find(p => p.id === id);
   if (!project) { renderNotFound(); return; }
@@ -152,26 +147,23 @@ function renderProject(id) {
   ${project.links ? `<div class="case-links">${project.links.map(l=>linkButton(l.label,l.url,'target="_blank" rel="noopener noreferrer"')).join('')}</div>` : ''}
   <a class="next-project" href="#/project/${next.id}"><div><span>下一个项目</span><h2>${next.name}</h2></div>${diagonal}</a></article>`;
 }
-
 function timeline() {
   return `<div class="timeline">${experience.map(e=>`<div class="timeline-row"><span class="period">${e.period}</span><div><h3>${e.role}</h3><p class="company">${e.company}</p><p class="experience-description">${e.text}</p></div></div>`).join('')}</div>`;
 }
-
 function renderAbout() {
-  main.innerHTML = `<div class="page about-page"><section class="about-intro"><div><p class="eyebrow">ABOUT / 关于</p><h1 class="about-heading">理解问题。<br>连接可能。</h1></div><div class="about-statement"><p class="name-line">${profile.name}<span>${profile.role}</span></p><p class="about-description">${profile.about}</p><p>${profile.practice}</p>${linkButton('查看简历','#/resume')}</div></section>
+  main.innerHTML = `<div class="page about-page"><section class="page-intro about-page-intro"><h1 class="display-heading">About<span class="heading-period">.</span></h1><div class="intro-aside"><p class="intro-chinese">关于</p><p>人才工作、业务研究与 AI 实践</p></div></section>${topicIndex(aboutTopics)}
+  <section class="about-intro about-overview"><div><p class="eyebrow">ABOUT / 关于</p><h2 class="about-heading">理解问题。<br>连接可能。</h2></div><div class="about-statement"><p class="name-line">${profile.name}.<span>${profile.role}</span></p><p class="about-description">${profile.about}</p><p>${profile.practice}</p>${linkButton('查看简历','#/resume')}</div></section>
   <section class="focus-section" aria-labelledby="focus-title"><div class="section-heading"><h2 id="focus-title">持续关注</h2><span>AREAS OF PRACTICE</span></div><div class="focus-grid"><article><span>01 / PEOPLE</span><h3>人才与组织</h3><p>关注业务需求、人才市场与员工融入。</p></article><article><span>02 / RESEARCH</span><h3>研究与判断</h3><p>整理信息、核验来源，为业务判断提供参考。</p></article><article><span>03 / AI PRACTICE</span><h3>工具与方法</h3><p>探索 AI 的实际应用，开发工具，整理方法。</p></article></div></section>
   <section class="experience-section"><div class="section-heading"><h2>职业经历</h2><span>EXPERIENCE</span></div>${timeline()}</section>
   <section class="closing"><a href="#/work">查看作品${diagonal}</a></section></div>`;
 }
-
 function renderResume() {
-  main.innerHTML = `<article class="page resume-page"><div class="resume-actions"><a class="back-link" href="#/about">${back}返回关于</a><button class="text-link" id="print-resume">打印简历 ${diagonal}</button></div><header class="resume-header"><p class="eyebrow">PROFILE / 职业档案</p><h1>${profile.name}</h1><p>${profile.role}</p><div class="resume-contacts"><a href="mailto:${profile.email}" aria-label="Email: ${profile.email}">${emailIcon}<span>${profile.email}</span></a><button id="resume-wechat" aria-label="WeChat: ${profile.wechat}" aria-haspopup="dialog" aria-controls="wechat-dialog">${wechatIcon}<span>${profile.wechat}</span></button></div></header><section class="resume-section"><h2>职业概述</h2><p>具备猎头与企业人力资源工作经历，关注高端人才招聘、人才研究与员工融入。持续探索 AI 在工作中的应用，开展产品实践与方法分享。</p></section><section class="resume-section"><h2>工作经历</h2>${timeline()}</section><section class="resume-section"><h2>实践方向</h2><dl class="resume-skills"><div><dt>人才招聘与融入</dt><dd>岗位需求盘点、人才研究、招聘入职与员工融入。</dd></div><div><dt>业务研究</dt><dd>市场与竞品调研、访谈准备、报告整理。</dd></div><div><dt>AI 应用</dt><dd>Vibe Coding、流程自动化、知识管理与实践分享。</dd></div></dl></section><section class="resume-section"><h2>项目实践</h2><div class="resume-projects">${projects.map(p=>`<a href="#/project/${p.id}"><strong>${p.name}</strong><span>${p.summary}</span>${diagonal}</a>`).join('')}</div></section><section class="resume-section"><h2>教育经历</h2><p>扬州大学 · 土木工程 · 本科 · 2015—2018</p><p>江苏建筑职业技术学院 · 建筑工程技术 · 大专 · 2012—2015</p></section></article>`;
+  main.innerHTML = `<article class="page resume-page"><div class="resume-actions"><a class="back-link" href="#/about">${back}返回关于</a><button class="text-link" id="print-resume">打印简历 ${diagonal}</button></div><header class="resume-header"><h1>${profile.name}.</h1><p>${profile.role}</p><div class="resume-contacts"><a href="mailto:${profile.email}" aria-label="Email: ${profile.email}">${emailIcon}<span>${profile.email}</span></a><button id="resume-wechat" aria-label="WeChat: ${profile.wechat}" aria-haspopup="dialog" aria-controls="wechat-dialog">${wechatIcon}<span>${profile.wechat}</span></button></div></header><section class="resume-section"><h2>职业概述</h2><p>具备猎头与企业人力资源工作经历，关注高端人才招聘、人才研究与员工融入。持续探索 AI 在工作中的应用，开展产品实践与方法分享。</p></section><section class="resume-section"><h2>工作经历</h2>${timeline()}</section><section class="resume-section"><h2>实践方向</h2><dl class="resume-skills"><div><dt>人才招聘与融入</dt><dd>岗位需求盘点、人才研究、招聘入职与员工融入。</dd></div><div><dt>业务研究</dt><dd>市场与竞品调研、访谈准备、报告整理。</dd></div><div><dt>AI 应用</dt><dd>Vibe Coding、流程自动化、知识管理与实践分享。</dd></div></dl></section><section class="resume-section"><h2>项目实践</h2><div class="resume-projects">${projects.map(p=>`<a href="#/project/${p.id}"><strong>${p.name}</strong><span>${p.summary}</span>${diagonal}</a>`).join('')}</div></section></article>`;
   document.querySelector('#print-resume').onclick = () => window.print();
   document.querySelector('#resume-wechat').onclick = () => document.querySelector('#wechat-dialog').showModal();
 }
-
 function renderContact() {
-  main.innerHTML = `<section class="page contact-page"><p class="eyebrow">CONTACT / 联系</p><h1 class="contact-heading">Let's talk<span>.</span></h1><div class="contact-copy"><h2>欢迎交流。</h2><p>关于人才招聘、业务研究与 AI 应用。</p></div><div class="contact-methods"><button class="contact-card" id="open-email" aria-label="Email — View address" aria-haspopup="dialog" aria-controls="email-dialog"><span class="contact-card-icon">${emailIcon}</span><span class="contact-card-title">Email</span><span class="contact-card-action">View address</span><span class="contact-card-arrow">${diagonal}</span></button><button class="contact-card" id="open-wechat" aria-label="WeChat — View QR code" aria-haspopup="dialog" aria-controls="wechat-dialog"><span class="contact-card-icon">${wechatIcon}</span><span class="contact-card-title">WeChat</span><span class="contact-card-action">View QR code</span><span class="contact-card-arrow">${diagonal}</span></button><a class="contact-card" href="${profile.github}" target="_blank" rel="noopener noreferrer" aria-label="GitHub — View profile (opens in a new tab)"><span class="contact-card-icon">${githubIcon}</span><span class="contact-card-title">GitHub</span><span class="contact-card-action">View profile</span><span class="contact-card-arrow">${diagonal}</span></a></div><div class="contact-note"><span>${profile.name}</span><span>${profile.role}</span></div></section>`;
+  main.innerHTML = `<section class="page contact-page"><h1 class="contact-heading">Let's talk<span>.</span></h1><div class="contact-copy"><h2>欢迎交流。</h2><p>关于人才招聘、业务研究与 AI 应用。</p></div><div class="contact-methods"><button class="contact-card" id="open-email" aria-label="Email — View address" aria-haspopup="dialog" aria-controls="email-dialog"><span class="contact-card-icon">${emailIcon}</span><span class="contact-card-title">Email</span><span class="contact-card-action">View address</span><span class="contact-card-arrow">${diagonal}</span></button><button class="contact-card" id="open-wechat" aria-label="WeChat — View QR code" aria-haspopup="dialog" aria-controls="wechat-dialog"><span class="contact-card-icon">${wechatIcon}</span><span class="contact-card-title">WeChat</span><span class="contact-card-action">View QR code</span><span class="contact-card-arrow">${diagonal}</span></button><a class="contact-card" href="${profile.github}" target="_blank" rel="noopener noreferrer" aria-label="GitHub — View profile (opens in a new tab)"><span class="contact-card-icon">${githubIcon}</span><span class="contact-card-title">GitHub</span><span class="contact-card-action">View profile</span><span class="contact-card-arrow">${diagonal}</span></a></div></section>`;
   document.querySelector('#open-email').onclick = () => {
     const address = document.querySelector('#email-address');
     address.textContent = profile.email;
@@ -180,14 +172,16 @@ function renderContact() {
   };
   document.querySelector('#open-wechat').onclick = () => document.querySelector('#wechat-dialog').showModal();
 }
-
 function renderNotFound() {
   document.title = `页面未找到 · ${profile.name}`;
   main.innerHTML = `<section class="page not-found"><p class="eyebrow">404</p><h1>此处尚无内容。</h1><p>可以从作品集继续浏览。</p>${linkButton('返回作品','#/work')}</section>`;
 }
-
-function render() {
+let renderVersion = 0;
+let effectsTimer;
+async function render() {
   if (location.hash === '#main') { main.focus(); return; }
+  const version = ++renderVersion;
+  clearTimeout(effectsTimer);
   const hash = location.hash || '#/';
   if (previousRoute) scrollPositions.set(previousRoute, window.scrollY);
   clearTimeout(sceneTimer);
@@ -205,6 +199,13 @@ function render() {
   else if (route === 'writing') renderWriting(main);
   else if (route === 'toolkit') renderToolkit(main);
   else if (route === 'article') {
+    main.innerHTML = '<section class="page" aria-busy="true"><p role="status">正在载入文章…</p></section>';
+    try { await loadArticleContent(); } catch {
+      if (version !== renderVersion) return;
+      main.innerHTML = '<section class="page"><p>文章暂时无法载入，请刷新重试。</p></section>';
+      return;
+    }
+    if (version !== renderVersion) return;
     const title = renderArticle(main, id);
     if (title) document.title = `${title} · ${profile.name}`;
     else {
@@ -223,9 +224,8 @@ function render() {
   previousRoute = hash;
   linkNavigation = false;
   // Initialise React Bits effects after DOM is settled
-  setTimeout(() => initEffects(route), 80);
+  effectsTimer = setTimeout(() => initEffects(route), 80);
 }
-
 window.addEventListener('message', event => {
   const frame = document.querySelector('#valley-frame');
   if (event.origin !== location.origin || event.source !== frame?.contentWindow || event.data?.type !== 'portfolio-scene-status') return;

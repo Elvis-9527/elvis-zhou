@@ -92,13 +92,12 @@ const _ao = {
   canvas:null,gl:null,lnk:null,buf:null,vao:null,
   raf:0,last:0,clock:0,reveal:0,px:0,py:.5,reach:0,
   ptr:{x:0,y:0,inside:false},view:{w:1,h:1},
-  _resize:null,_move:null,_leave:null
+  _resize:null,_move:null,_leave:null,_visibility:null
 };
 
 function _aRender(){
   const {gl,lnk,canvas} = _ao;if(!gl||!lnk)return;
   const stops=A_CFG.stops;
-  _unwrap(stops.map(s=>_oklch(_col(s)))).forEach((s,i)=>A_PAL.set(s,i*3));
   const u=lnk.u;
   gl.viewport(0,0,canvas.width,canvas.height);
   gl.useProgram(lnk.prog);gl.bindVertexArray(_ao.vao);
@@ -137,13 +136,15 @@ function mountAurora(){
   gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
   gl.enableVertexAttribArray(0);gl.vertexAttribPointer(0,2,gl.FLOAT,false,0,0);
   Object.assign(_ao,{canvas:c,gl,lnk,buf,vao,raf:0,last:0,clock:0,reveal:0,px:0,py:.5,reach:0});
+  _unwrap(A_CFG.stops.map(s=>_oklch(_col(s)))).forEach((s,i)=>A_PAL.set(s,i*3));
   const resize=()=>{const dpr=Math.min(devicePixelRatio||1,2);const w=Math.max(1,innerWidth);const h=Math.max(1,innerHeight);_ao.view={w,h};c.width=Math.round(w*dpr);c.height=Math.round(h*dpr);_aRender();};
   const move=e=>{_ao.ptr={x:e.clientX,y:e.clientY,inside:true};if(!_ao.raf)_ao.raf=requestAnimationFrame(_aFrame);};
   const leave=()=>{_ao.ptr.inside=false;};
   window.addEventListener('resize',resize);window.addEventListener('pointermove',move,{passive:true});
   document.documentElement.addEventListener('pointerleave',leave);
-  document.addEventListener('visibilitychange',()=>{_ao.last=0;if(!_ao.raf&&!document.hidden)_ao.raf=requestAnimationFrame(_aFrame);});
-  Object.assign(_ao,{_resize:resize,_move:move,_leave:leave});
+  const visibility=()=>{_ao.last=0;if(!_ao.raf&&!document.hidden&&_ao.canvas)_ao.raf=requestAnimationFrame(_aFrame);};
+  document.addEventListener('visibilitychange',visibility);
+  Object.assign(_ao,{_resize:resize,_move:move,_leave:leave,_visibility:visibility});
   resize();_ao.raf=requestAnimationFrame(_aFrame);
 }
 
@@ -153,6 +154,7 @@ function destroyAurora(){
   window.removeEventListener('resize',_ao._resize);
   window.removeEventListener('pointermove',_ao._move);
   document.documentElement.removeEventListener('pointerleave',_ao._leave);
+  document.removeEventListener('visibilitychange',_ao._visibility);
   _ao.gl?.getExtension('WEBGL_lose_context')?.loseContext();
   _ao.canvas.remove();Object.assign(_ao,{canvas:null,gl:null,lnk:null,buf:null,vao:null,raf:0});
 }
@@ -306,6 +308,7 @@ export function initEffects(route){
   // 一次性观察所有页面的渐显元素，避免多次调用导致观察器断开
   initScrollReveal(document.querySelectorAll('.case-section,.timeline-row,.focus-grid article,.resume-section,.about-statement>p'));
   initShinyText(document.querySelectorAll('.wordmark'));
+  initStarBorder(document.querySelectorAll('.text-link,.back-link,.closing>a,.footer-action,.next-project,.contact-card'));
   initBlurText(document.querySelectorAll('.display-heading,.about-heading,.contact-heading,.case-title'));
 
   // ── Work page ────────────────────────────────────
@@ -314,13 +317,13 @@ export function initEffects(route){
     initChromaGrid(gallery,signal);
     initTiltedCard(document.querySelectorAll('.staggered-gallery .feature'),signal);
     initGlareHover(document.querySelectorAll('.staggered-gallery .feature-media'),signal);
-    initStarBorder(document.querySelectorAll('.closing>a'));
+
   }
 
   // ── Project detail ───────────────────────────────
   if(route==='project'){
     initGlareHover(document.querySelectorAll('.case-visual'),signal);
-    initStarBorder(document.querySelectorAll('.next-project'));
+
     // .case-section 已在通用 initScrollReveal 中
   }
 
@@ -333,7 +336,7 @@ export function initEffects(route){
   // ── Contact ──────────────────────────────────────
   if(route==='contact'){
     initMagnet(document.querySelectorAll('.contact-card'),signal);
-    initStarBorder(document.querySelectorAll('.contact-card'));
+
   }
 
   // ── About ────────────────────────────────────────

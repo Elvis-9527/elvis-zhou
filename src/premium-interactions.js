@@ -6,31 +6,37 @@ let mouseY = 50;
 let targetX = 50;
 let targetY = 50;
 const smoothness = 0.15;
+let glowFrame = 0;
+const glowMotion = matchMedia('(prefers-reduced-motion: reduce)');
 
 function updateMousePosition(e) {
   mouseX = (e.clientX / window.innerWidth) * 100;
   mouseY = (e.clientY / window.innerHeight) * 100;
+  if (!glowFrame && !document.hidden && !glowMotion.matches) glowFrame = requestAnimationFrame(animateMouseGlow);
 }
 
 function animateMouseGlow() {
+  glowFrame = 0;
+  if (document.hidden || glowMotion.matches) return;
   targetX += (mouseX - targetX) * smoothness;
   targetY += (mouseY - targetY) * smoothness;
 
   document.documentElement.style.setProperty('--mouse-x', `${targetX}%`);
   document.documentElement.style.setProperty('--mouse-y', `${targetY}%`);
 
-  requestAnimationFrame(animateMouseGlow);
+  if (Math.abs(mouseX-targetX)+Math.abs(mouseY-targetY) > 0.02) glowFrame = requestAnimationFrame(animateMouseGlow);
 }
 
 // 仅在非触摸设备上启用
 if (!('ontouchstart' in window)) {
   document.addEventListener('mousemove', updateMousePosition);
-  animateMouseGlow();
 }
 
 // 花谷页面实践标签（如果不存在则创建）
 function initPracticeTags() {
   if (!document.body.classList.contains('is-home')) return;
+  // The simplified home deliberately omits the practice text.
+  if (!document.querySelector('.home-signature')) return;
 
   const homeBottom = document.querySelector('.home-bottom');
   if (!homeBottom) return;
@@ -74,6 +80,8 @@ function enhanceResourceCards() {
   const cards = document.querySelectorAll('.resource-card');
 
   cards.forEach(card => {
+    // These cards already render their own identity and single link action.
+    if (card.querySelector('.resource-logo')) return;
     // 如果已经增强过，跳过
     if (card.dataset.enhanced) return;
     card.dataset.enhanced = 'true';
