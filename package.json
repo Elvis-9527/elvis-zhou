@@ -3,5 +3,5 @@
   "version": "3.0.0",
   "private": true,
   "type": "module",
-  "scripts": { "start": "node scripts/serve.cjs", "check": "node --check src/app.js && node --check src/content.js && node --check src/library.js && node --check src/library-pages.js && node --check scripts/serve.cjs" }
+  "scripts": { "start": "node scripts/serve.cjs", "build": "node scripts/build.mjs", "check": "node --check src/app.js && node --check src/content.js && node --check src/library.js && node --check src/library-pages.js && node --check src/effects.js && node --check src/premium-interactions.js && node --check scripts/build.mjs && node --check scripts/serve.cjs" }
 }

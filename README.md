@@ -18,7 +18,7 @@ npm start
 
 - `index.html`：站点入口。
 - `src/content.js`：统一身份、经历与六个项目文案。
-- `src/library.js`：文章、工具资源及分类。目前文章待用户提供，首批 19 项资源已确认。
+- `src/library.js`：文章标题、摘要、工具资源及分类；8 篇文章正文来自站内 Markdown。
 - `src/library-pages.js`：文章目录、文章详情、工具资源与分类筛选。
 - `src/app.js`：页面组合、导航、场景与联系交互。
 - `src/styles.css`：视觉系统、V2 参考字体层级、响应式与简历打印样式。
@@ -33,7 +33,7 @@ npm start
 
 项目截图来自 V1，职业内容根据既有资料整理为公开版，未将测试次数、内部篇数或未经核对的职级作为对外成果。AICruit 截图在 V3 副本中重新处理；旧版文件未修改。
 
-字体采用混合方案：展示级标题使用 Cormorant Garamond，正文与中文界面保持 Manrope，导航与 UI 标签使用 Inter，项目编号、日期和资源域名使用 JetBrains Mono；字体文件均为本地资源。
+字体采用书刊主体与清晰操作文字搭配：品牌及英文展示标题使用 Cormorant Garamond，中文标题、导航与文章使用思源宋体；操作按钮和说明使用 Inter＋思源黑体，编号和代码使用 JetBrains Mono。最终字体规则集中在 `src/typography.css`，文章保持全宽布局。中文可变字体裁剪为本地 WOFF2，许可与更新方法见 `assets/fonts/README.md`；新增文字后可重新运行裁剪脚本补充字形。
 
 设计、文案规则与验收记录：`D:\AI工作区\10-项目\20261106-个人站V3设计\设计与验收.md`。
 
@@ -50,7 +50,9 @@ npm start
 - `status`：`published` 才会出现在目录并可通过 `#/article/<id>` 访问。未定稿内容不应放入待部署文件；隐藏状态不构成访问权限保护。
 - `title`、`summary`：标题与摘要。
 - `date`：可选，格式 `YYYY-MM-DD`，只填写真实日期。
-- `sections`：正文小节数组，每节可含 `heading`、`paragraphs`（段落数组）、`items`（列表数组）。文字按纯文本转义，不执行 HTML。
+- 正文源文件：`assets/articles/<id>.md`。2026-11-09 已按用户口径修订，不能再用外部旧原稿直接覆盖。
+- 渲染正文：`src/article-content.js`，从站内 Markdown 生成前言和正文 HTML，仅在进入文章路由时加载。更新 Markdown 后需同步生成内容，并核对列表标题与摘要；不在列表数据中重复维护简版正文。
+- `sourceFile` 仅记录原始稿件名称，不表示当前站内版本与外部原稿逐字一致。渲染时转义原始 HTML，并限制链接协议。
 
 每条工具资源包含 `name`、`category`、`description`、`url`。分类可选 `ai-tools`、`dsh-plugins`、`skills`、`ui-references`。链接使用不含账号凭据的 HTTPS 地址；以新标签页打开。官网、文档或仓库页面均可。暂未确认公开地址的 DSH 插件与 Skill 使用 `url: null`，页面会以不可点击的待补链接卡片展示，不伪造地址。
 

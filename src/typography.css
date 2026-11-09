@@ -1,0 +1,48 @@
+/* Editorial typography: display serif, reading serif, UI sans and code mono. */
+@font-face{font-family:SourceHanSerif;src:url('../assets/fonts/source-han-serif-sc.woff2') format('woff2');font-weight:250 900;font-style:normal;font-display:swap}
+@font-face{font-family:SourceHanSans;src:url('../assets/fonts/source-han-sans-sc.woff2') format('woff2');font-weight:250 900;font-style:normal;font-display:swap}
+@font-face{font-family:'Cormorant Garamond';src:url('../assets/fonts/cormorant-garamond-500.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap}
+:root{--display-font:'Cormorant Garamond',SourceHanSerif,'SimSun',serif;--reading-font:SourceHanSerif,'SimSun',serif;--ui-font:InterUI,SourceHanSans,'Microsoft YaHei',sans-serif;--mono-font:'JetBrains Mono',SourceHanSans,monospace}
+body{font-family:var(--ui-font)}
+.wordmark,.footer-identity .wordmark{font-size:22px;line-height:1.4}
+.display-heading{font-weight:500}
+.site-header nav,.site-header nav a,.nav-toggle{font-family:var(--display-font);font-size:14px;font-weight:500;letter-spacing:.025em}
+.page-intro .intro-aside>p{font-family:var(--display-font);font-synthesis:style;font-style:italic}
+.page-intro .intro-chinese{font-size:28px;line-height:1.5}
+.page-intro .intro-aside>p:last-child{font-size:14px;line-height:1.8;white-space:normal}
+.topic-index h2{font-size:28px;line-height:1.4}
+.topic-index p,.feature-caption p,.index-row p,.writing-row p{font-family:var(--ui-font);font-size:14px;line-height:1.8}
+.resource-card p{font-family:var(--ui-font);font-size:14px!important;line-height:1.8!important}
+.text-link,.back-link,.footer-action,.dialog-close,.library-filters button,.contact-card-action,.resume-contacts{font-family:var(--ui-font);font-size:14px;letter-spacing:0}
+.text-link,.back-link,.resume-actions .text-link,.resume-actions .back-link{font-size:14px}
+.contact-card-title{font-family:var(--ui-font)}
+.library-filters button{font-weight:400}
+.eyebrow,.index-number,.project-number,.project-category,.period{font-family:var(--mono-font);font-size:11px;line-height:1.7;letter-spacing:.04em}
+.scene-controls,.scene-controls button,.scene-controls .wander-label{font-family:var(--display-font);font-size:12px}
+.page.writing-detail{--article-font:var(--reading-font)}
+.writing-summary,.writing-body{font-family:var(--reading-font)}
+.writing-body h2,.writing-body h3,.writing-body h4{font-family:var(--reading-font);font-weight:600}
+.writing-body strong{font-weight:700}
+.writing-body code{font-family:var(--mono-font);letter-spacing:0}
+.writing-body pre code{font-size:14px}
+/* Card and action lettering follows the Elvis Zhou. wordmark. */
+button,.text-link,.back-link,.footer-action,.dialog-close,.library-filters button,
+.resume-contacts,.resume-contacts>a,.resume-contacts>button,.home-cta,
+.contact-card,.contact-card-title,.contact-card-action,
+.resource-card,.resource-card h2,.resource-card p,.resource-state,
+.feature-caption,.feature-caption h2,.feature-caption p,
+.index-row h3,.index-row p,.writing-row h2,.writing-row p,.writing-meta>span,
+.next-project,.next-project h2,.closing>a{
+  font-family:var(--display-font);font-weight:500;
+}
+@media(max-width:760px){
+  .wordmark,.footer-identity .wordmark{font-size:22px}
+  .page-intro .intro-chinese{font-size:24px}
+  .page-intro .intro-aside>p:last-child{font-size:14px}
+  .topic-index{column-gap:14px}
+  .topic-index h2{font-size:23px}
+  .topic-index p,.feature-caption p,.index-row p,.writing-row p{font-size:13px}
+  .resource-card p{font-size:13px!important}
+  .scene-controls,.scene-controls button,.scene-controls .wander-label{font-size:12px}
+  .writing-body pre code{font-size:14px}
+}
