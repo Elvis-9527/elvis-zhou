@@ -1,0 +1,59 @@
+name: 部署到 GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出仓库
+        uses: actions/checkout@v4
+
+      - name: 准备 Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 构建站点
+        run: node scripts/build.mjs
+
+      - name: 取最新构建目录并去掉 Pages 用不上的预压缩文件
+        run: |
+          latest=$(ls -dt dist/*/ | head -1)
+          echo "构建产物：$latest"
+          rm -rf dist-out
+          cp -r "$latest" dist-out
+          # GitHub Pages 不支持 .br / .gz 预压缩与服务端 header 配置，
+          # 文本由 CDN 自动 gzip；删掉冗余副本，避免上传体积翻倍。
+          find dist-out -name '*.br' -delete
+          find dist-out -name '*.gz' -delete
+          echo "上传文件数：$(find dist-out -type f | wc -l)"
+          du -sh dist-out
+
+      - name: 上传站点产物
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist-out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: 发布
+        id: deployment
+        uses: actions/deploy-pages@v4
